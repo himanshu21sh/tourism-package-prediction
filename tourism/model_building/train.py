@@ -2,9 +2,9 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import make_column_transformer
 from sklearn.pipeline import Pipeline
-from random import randint
+from scipy.stats import randint
 
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import accuracy_score, classification_report, recall_score
 
@@ -24,8 +24,8 @@ ytest_path = "hf://datasets/himanshu21sh/tourism-package-prediction/processed_da
 
 Xtrain = pd.read_csv(Xtrain_path)
 Xtest = pd.read_csv(Xtest_path)
-ytrain = pd.read_csv(ytrain_path)
-ytest = pd.read_csv(ytest_path)
+ytrain = pd.read_csv(ytrain_path).iloc[:, 0]
+ytest = pd.read_csv(ytest_path).iloc[:, 0]
 
 categorical_features = [
     'TypeofContact', 'Occupation', 'Gender',
@@ -50,15 +50,15 @@ preprocessor = make_column_transformer(
 
 # --- Random Forest ---
 rf_params = {
-    'regressor__n_estimators': randint(100, 300),
-    'regressor__max_depth': randint(3, 10),
-    'regressor__min_samples_split': randint(2, 10),
-    'regressor__min_samples_leaf': randint(1, 20)
+    'classifier__n_estimators': randint(100, 300),
+    'classifier__max_depth': randint(3, 10),
+    'classifier__min_samples_split': randint(2, 10),
+    'classifier__min_samples_leaf': randint(1, 20)
 }
 
 rf_pipeline = Pipeline([
     ('preprocessor', preprocessor),
-    ('regressor', RandomForestRegressor(n_estimators=100, random_state=42))
+    ('classifier', RandomForestClassifier(random_state=42))
 ])
 
 # Grid search with cross-validation

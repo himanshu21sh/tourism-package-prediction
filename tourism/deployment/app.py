@@ -3,15 +3,28 @@ import pandas as pd
 from huggingface_hub import hf_hub_download
 import joblib
 
-# Download and load the model
-model_path = hf_hub_download(repo_id="himanshu21sh/tourism-package-prediction", filename="best_model_v1.joblib")
-model = joblib.load(model_path)
+# -------------------------------
+# Load Model from Hugging Face
+# -------------------------------
+@st.cache_resource
+def load_model():
+    model_path = hf_hub_download(
+        repo_id="himanshu21sh/tourism-package-prediction",
+        filename="best_model_v1.joblib"
+    )
+    return joblib.load(model_path)
 
-# Streamlit UI for Machine Failure Prediction
-st.title("Tourism Package Prediction App")
-st.write("""This application predicts the likelihood of a customer purchasing the Wellness Tourism Package.""")
+model = load_model()
 
-# User input
+# -------------------------------
+# App Title
+# -------------------------------
+st.title("🌴 Tourism Package Prediction App")
+st.write("Predict whether a customer will purchase the Wellness Tourism Package.")
+
+# -------------------------------
+# Sidebar Inputs
+# -------------------------------
 st.sidebar.header("Customer Details")
 
 age = st.sidebar.slider("Age", 18, 90, 30)
@@ -30,12 +43,15 @@ designation = st.sidebar.selectbox("Designation", ['Manager', 'Executive', 'Seni
 monthly_income = st.sidebar.number_input("Monthly Income", 10000, 200000, 50000)
 
 st.sidebar.header("Customer Interaction Data")
+
 pitch_satisfaction_score = st.sidebar.slider("Pitch Satisfaction Score", 1, 5, 3)
 product_pitched = st.sidebar.selectbox("Product Pitched", ['Basic', 'Deluxe', 'Standard', 'Super Deluxe', 'King'])
 number_of_followups = st.sidebar.number_input("Number of Follow-ups", 0, 10, 2)
 duration_of_pitch = st.sidebar.number_input("Duration of Pitch (minutes)", 1, 60, 10)
 
-# Assemble input into DataFrame
+# -------------------------------
+# Prepare Input Data
+# -------------------------------
 input_data = pd.DataFrame({
     'Age': [age],
     'TypeofContact': [type_of_contact],
@@ -57,9 +73,21 @@ input_data = pd.DataFrame({
     'DurationOfPitch': [duration_of_pitch]
 })
 
-if prediction == 1 else "Will Not Purchase Package"
-    st.subheader("Prediction Result:")
-    st.success(f"The model predicts: **{result}**")
-if st.button("Predict Purchase"): # Changed button text to be relevant to the problem
+# -------------------------------
+# Prediction Button
+# -------------------------------
+if st.button("🔍 Predict Purchase"):
+
     prediction = model.predict(input_data)[0]
-    result = "Will Purchase Package"
+    probability = model.predict_proba(input_data)[0][1]
+
+    if prediction == 1:
+        result = "✅ Will Purchase Package"
+    else:
+        result = "❌ Will Not Purchase Package"
+
+    st.subheader("Prediction Result:")
+    st.success(result)
+
+    st.subheader("Confidence Score:")
+    st.info(f"{round(probability * 100, 2)}% likelihood of purchase")

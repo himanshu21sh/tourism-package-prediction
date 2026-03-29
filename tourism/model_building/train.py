@@ -1,7 +1,8 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import make_column_transformer
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import Pipeline
+from random import randint
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import RandomizedSearchCV
@@ -16,10 +17,10 @@ from huggingface_hub.utils import RepositoryNotFoundError, HfHubHTTPError
 
 api = HfApi()
 
-Xtrain_path = "hf://datasets/himanshu21sh/tourism-package-prediction/Xtrain.csv"
-Xtest_path = "hf://datasets/himanshu21sh/tourism-package-prediction/Xtest.csv"
-ytrain_path = "hf://datasets/himanshu21sh/tourism-package-prediction/ytrain.csv"
-ytest_path = "hf://datasets/himanshu21sh/tourism-package-prediction/ytest.csv"
+Xtrain_path = "hf://datasets/himanshu21sh/tourism-package-prediction/processed_data/Xtrain.csv"
+Xtest_path = "hf://datasets/himanshu21sh/tourism-package-prediction/processed_data/Xtest.csv"
+ytrain_path = "hf://datasets/himanshu21sh/tourism-package-prediction/processed_data/ytrain.csv"
+ytest_path = "hf://datasets/himanshu21sh/tourism-package-prediction/processed_data/ytest.csv"
 
 Xtrain = pd.read_csv(Xtrain_path)
 Xtest = pd.read_csv(Xtest_path)
@@ -69,7 +70,7 @@ rf_grid = RandomizedSearchCV(
     n_jobs=-1, random_state=42, verbose=1
 )
 
-rf_grid.fit(X_train, y_train)
+rf_grid.fit(Xtrain, ytrain)
 
 # Best model
 best_model = rf_grid.best_estimator_

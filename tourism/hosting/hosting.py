@@ -3,7 +3,7 @@ import os
 
 api = HfApi(token=os.getenv("HF_TOKEN"))
 
-repo_id="himanshu21sh/tourism-package-prediction",
+repo_id="himanshu21sh/tourism-package-prediction"
 repo_type="space"
 
 # Step 1: Check if the space exists
@@ -12,7 +12,8 @@ try:
     print(f"Model Space '{repo_id}' already exists")
 except RepositoryNotFoundError:
     print(f"Model Space '{repo_id}' not found. Creating new space...")
-    create_repo(repo_id=repo_id, repo_type=repo_type, private=False)
+    # Change space_sdk to "docker" since we are providing a Dockerfile
+    create_repo(repo_id=repo_id, repo_type=repo_type, private=False, space_sdk="docker")
     print(f"Model Space '{repo_id}' created.")
 
 
@@ -20,5 +21,5 @@ api.upload_folder(
     folder_path="tourism/deployment",
     repo_id=repo_id,
     repo_type=repo_type,
-    path_in_repo="" 
+    path_in_repo=""
     )
